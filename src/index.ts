@@ -48,6 +48,8 @@ interface CSVRow {
   pool: string;
   block: number;
   position: number;
+  token0: string;
+  token1: string;
   lpvalue: string;
 }
 
@@ -95,14 +97,16 @@ const getData = async () => {
     lpValueByUsers.forEach((value, key) => {
       let positionIndex = 0; // Define how you track position index
       value.forEach((lpValue, poolKey) => {
-        const lpValueStr = lpValue.toString();
+        // const lpValueStr = lpValue.toString();
         // Accumulate CSV row data
         csvRows.push({
           user: key,
           pool: poolKey,
           block,
           position: positions.length, // Adjust if you have a specific way to identify positions
-          lpvalue: lpValueStr,
+          token0: lpValue.totalToken0.toString(),
+          token1: lpValue.totalToken1.toString(),
+          lpvalue: lpValue.totalValue.toString(),
         });
       });
     });

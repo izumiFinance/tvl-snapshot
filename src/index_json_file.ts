@@ -29,6 +29,8 @@ import fs from 'fs';
 
 interface LPValueDetails {
   pool: string;
+  token0:string;
+  token1: string;
   lpValue: string;
 }
 
@@ -66,10 +68,7 @@ const readBlocksFromCSV = async (filePath: string): Promise<number[]> => {
 
 const getData = async () => {
   const snapshotBlocks = [
-    3116208, 3159408, 3202608, 3245808, 3289008, 3332208,
-    3375408, 3418608, 3461808, 3505008, 3548208, 3591408,
-    3634608, 3677808, 3721008, 3764208, 3807408, 3850608,
-    3893808, 3937008, 3980208, 3983003,
+    5292889
   ]; //await readBlocksFromCSV('src/sdk/mode_chain_daily_blocks.csv');
   
   // Object to hold the final structure for JSON output
@@ -93,9 +92,9 @@ const getData = async () => {
 
       let total = new BigNumber(outputData[key].totalLP);
       value.forEach((lpValue, poolKey) => {
-        const lpValueStr = lpValue.toString();
-        outputData[key].pools.push({ pool: poolKey, lpValue: lpValueStr });
-        total = total.plus(lpValue);
+        // const lpValueStr = lpValue.toString();
+        outputData[key].pools.push({ pool: poolKey, token0: lpValue.totalToken0.toString(), token1: lpValue.totalToken1.toString(), lpValue: lpValue.totalValue.toString()});
+        total = total.plus(lpValue.totalValue);
       });
 
       outputData[key].totalLP = total.toString();

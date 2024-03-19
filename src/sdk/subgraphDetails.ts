@@ -37,6 +37,12 @@ export interface PositionWithUSDValue extends Position{
     token0DecimalValue: number;
     token1DecimalValue: number;
 }
+
+export interface UserPoolInfo {
+    totalToken0: BigNumber;
+    totalToken1: BigNumber;
+    totalValue: BigNumber;
+}
     
 export const getPositionsForAddressByPoolAtBlock = async (
     blockNumber: number,
@@ -271,8 +277,8 @@ export const getPositionDetailsFromPosition =  (
 
 export const getLPValueByUserAndPoolFromPositions = (
     positions: Position[]
-): Map<string, Map<string, BigNumber>> => {
-    let result = new Map<string, Map<string, BigNumber>>();
+): Map<string, Map<string, UserPoolInfo>> => {
+    let result = new Map<string, Map<string, UserPoolInfo>>();
     for (let i = 0; i < positions.length; i++) {
         let position = positions[i];
         let poolId = position.pool.id;
@@ -280,15 +286,17 @@ export const getLPValueByUserAndPoolFromPositions = (
         if (owner == '0x0000000000000000000000000000000000000000') continue;
         let userPositions = result.get(owner);
         if (userPositions === undefined) {
-            userPositions = new Map<string, BigNumber>();
+            userPositions = new Map<string, UserPoolInfo>();
             result.set(owner, userPositions);
         }
         let poolPositions = userPositions.get(poolId);
         if (poolPositions === undefined) {
-            poolPositions = BigNumber(0);
+            poolPositions = {totalToken0: BigNumber(0), totalToken1: BigNumber(0), totalValue: BigNumber(0)};
         }
         let positionWithUSDValue = getPositionDetailsFromPosition(position);
-        poolPositions = poolPositions.plus(BigNumber(positionWithUSDValue.token0USDValue).plus(positionWithUSDValue.token1USDValue));
+        poolPositions.totalToken0 = poolPositions.totalToken0.plus(BigNumber(positionWithUSDValue.token0DecimalValue));
+        poolPositions.totalToken1 = poolPositions.totalToken1.plus(BigNumber(positionWithUSDValue.token1DecimalValue));
+        poolPositions.totalValue = poolPositions.totalValue.plus(BigNumber(positionWithUSDValue.token0USDValue).plus(positionWithUSDValue.token1USDValue));
         userPositions.set(poolId, poolPositions);
     }
     return result;
